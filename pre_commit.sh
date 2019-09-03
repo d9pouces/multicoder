@@ -1,5 +1,3 @@
 #!/usr/bin/env bash
-echo "#?" > /tmp/test
 black .
-echo "#$?" >> /tmp/test
-
+exit 0
