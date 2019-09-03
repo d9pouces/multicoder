@@ -2,3 +2,4 @@
 echo "#?" > /tmp/test
 black .
 echo "#$?" >> /tmp/test
+
