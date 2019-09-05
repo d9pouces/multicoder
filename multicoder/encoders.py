@@ -19,7 +19,8 @@ class Encoder:
             encoder: Callable,
             help_text: Optional[str] = None,
             class_: str = None,
-            is_binary: bool = False,
+            binary_input: bool = False,
+            binary_output: bool = False,
             decode_name: str = None,
             decoder: Optional[Callable] = None
     ):
@@ -29,79 +30,97 @@ class Encoder:
         self.decoder = decoder
         self.help_text = help_text
         self.class_ = class_
-        self.is_binary = is_binary
+        self.binary_input = binary_input
+        self.binary_output = binary_output
         encoders[self.encode_name] = self
 
-    def encode(self, message: str) -> str:
-        return self.encoder(message)
+    def encode(self, message: str, encoding: Optional[str] = None) -> str:
+        return self.encoder(message, encoding)
 
-    def decode(self, message: str) -> str:
-        return self.decoder(message)
+    def decode(self, message: str, encoding: Optional[str] = None) -> str:
+        return self.decoder(message, encoding)
 
 
-Encoder("email.header.Header", lambda message: email.header.Header(message).encode(),
+Encoder("email.header.Header",
+        lambda message, enc: email.header.Header(message, charset=enc).encode(),
         decode_name="email.header.decode_header",
-        decoder=lambda header: "".join([x[0].decode(x[1]) if isinstance(x[0], bytes) else x[0] for x in email.header.decode_header(header)])
+        decoder=lambda header, enc: "".join([x[0].decode(x[1]) if isinstance(x[0], bytes) else x[0] for x in email.header.decode_header(header)])
         )
 Encoder(
     "quopri.encodestring",
-    lambda message: quopri.encodestring(message).decode("ascii"),
-    is_binary=True,
+    lambda message, enc: quopri.encodestring(message).decode("ascii"),
+    binary_input=True,
+    binary_output=True,
     decode_name="quopri.decodestring",
-    decoder=lambda message: quopri.decodestring(message.encode("ascii"))
+    decoder=lambda message, enc: quopri.decodestring(message.encode("ascii"))
 )
-Encoder("urllib.parse.quote", lambda message: urllib.parse.quote(message),
+Encoder("urllib.parse.quote", lambda message, enc: urllib.parse.quote(message),
         decode_name="urllib.parse.unquote",
-        decoder=lambda message: urllib.parse.unquote(message),
+        decoder=lambda message, enc: urllib.parse.unquote(message),
         )
-Encoder("urllib.parse.quote_plus", lambda message: urllib.parse.quote_plus(message),
+Encoder("urllib.parse.quote_plus", lambda message, enc: urllib.parse.quote_plus(message),
         decode_name="urllib.parse.unquote_plus",
-        decoder=lambda message: urllib.parse.unquote_plus(message),
+        decoder=lambda message, enc: urllib.parse.unquote_plus(message),
         )
-Encoder("html.escape", lambda message: html.escape(message),
+Encoder("html.escape", lambda message, enc: html.escape(message),
         decode_name="html.unescape",
-        decoder=lambda message: html.unescape(message)
+        decoder=lambda message, enc: html.unescape(message)
         )
-Encoder("shlex.quote", lambda message: shlex.quote(message),
+Encoder("shlex.quote", lambda message, enc: shlex.quote(message),
         )
 Encoder(
     "base64.b64encode",
-    lambda message: base64.b64encode(message).decode(),
-    is_binary=True,
+    lambda message, enc: base64.b64encode(message).decode(),
+    binary_input=True,
 )
 Encoder(
     "base64.urlsafe_b64encode",
-    lambda message: base64.urlsafe_b64encode(message).decode(),
-    is_binary=True,
+    lambda message, enc: base64.urlsafe_b64encode(message).decode(),
+    binary_input=True,
 )
 Encoder(
     "base64.b32encode",
-    lambda message: base64.b32encode(message).decode(),
-    is_binary=True,
+    lambda message, enc: base64.b32encode(message).decode(),
+    binary_input=True,
 )
 Encoder(
     "base64.b16encode",
-    lambda message: base64.b16encode(message).decode(),
-    is_binary=True,
+    lambda message, enc: base64.b16encode(message).decode(),
+    binary_input=True,
 )
 Encoder(
     "base64.a85encode",
-    lambda message: base64.a85encode(message).decode(),
-    is_binary=True,
+    lambda message, enc: base64.a85encode(message).decode(),
+    binary_input=True,
 )
 Encoder(
     "base64.b85encode",
-    lambda message: base64.b85encode(message).decode(),
-    is_binary=True,
+    lambda message, enc: base64.b85encode(message).decode(),
+    binary_input=True,
 )
 
 
-def get_hashed_value(message: bytes, method: str = "md5") -> str:
+def get_hashed_value(message: bytes, enc:str,  method: str = "md5") -> str:
     return getattr(hashlib, method)(message).hexdigest()
 
 
 for m in sorted(hashlib.algorithms_guaranteed):
     if m not in {"shake_128", "shake_256"}:
         Encoder(
-            "hashlib.%s" % m, functools.partial(get_hashed_value, method=m), is_binary=True
+            "hashlib.%s" % m, functools.partial(get_hashed_value, method=m), binary_input=True
         )
+# idna	 	Implements RFC 3490, see also encodings.idna
+# mbcs	dbcs	Windows only: Encode operand according to the ANSI codepage (CP_ACP)
+# palmos	 	Encoding of PalmOS 3.5
+# punycode	 	Implements RFC 3492
+# raw_unicode_escape	 	Produce a string that is suitable as raw Unicode literal in Python source code
+# rot_13	rot13	Returns the Caesar-cypher encryption of the operand
+# undefined	 	Raise an exception for all conversions. Can be used as the system encoding if no automatic coercion between byte and Unicode strings is desired.
+# unicode_escape	 	Produce a string that is suitable as Unicode literal in Python source code
+# unicode_internal
+# hex_codec	hex	Convert operand to hexadecimal representation, with two digits per byte	binascii.b2a_hex(), binascii.a2b_hex()
+# quopri_codec	quopri, quoted-printable, quotedprintable	Convert operand to MIME quoted printable	quopri.encode() with quotetabs=True, quopri.decode()
+# string_escape	 	Produce a string that is suitable as string literal in Python source code
+# uu_codec	uu	Convert the operand using uuencode	uu.encode(), uu.decode()
+# zlib_codec	zip, zlib	Compress the operand using gzip	zlib.compress(), zlib.decompress()
+# [1]	str object
