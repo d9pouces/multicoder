@@ -6,6 +6,7 @@ import hashlib
 import html
 import quopri
 import shlex
+import unicodedata
 import urllib.parse
 from typing import Callable, Optional, Iterable, Union
 
@@ -34,11 +35,22 @@ class Encoder:
         self.binary_output = binary_output
         encoders[self.encode_name] = self
 
-    def encode(self, message: str, encoding: Optional[str] = None) -> str:
+    def encode(self, message: str, encoding: str = "utf-8", normalization: Optional[str] = None) -> str:
+        if normalization:
+            message = unicodedata.normalize(normalization, message)
+        if self.binary_input:
+            message = message.encode(encoding)
         return self.encoder(message, encoding)
 
-    def decode(self, message: str, encoding: Optional[str] = None) -> str:
-        return self.decoder(message, encoding)
+    def decode(self, message: str, encoding: str = "utf-8", normalization: Optional[str] = None) -> str:
+        if normalization:
+            message = unicodedata.normalize(normalization, message)
+        if self.binary_output:
+            message = message.encode(encoding)
+        r = self.decoder(message, encoding)
+        if self.binary_input:
+            r = r.decode(encoding)
+        return r
 
 
 Encoder("email.header.Header",
@@ -50,7 +62,6 @@ Encoder(
     "quopri.encodestring",
     lambda message, enc: quopri.encodestring(message).decode("ascii"),
     binary_input=True,
-    binary_output=True,
     decode_name="quopri.decodestring",
     decoder=lambda message, enc: quopri.decodestring(message.encode("ascii"))
 )
@@ -70,12 +81,14 @@ Encoder("shlex.quote", lambda message, enc: shlex.quote(message),
         )
 Encoder(
     "base64.b64encode",
-    lambda message, enc: base64.b64encode(message).decode(),
+    lambda message, enc: base64.b64encode(message).decode("ascii"),
+    decoder=lambda message, enc: base64.b64decode(message.encode("ascii")),
     binary_input=True,
 )
 Encoder(
     "base64.urlsafe_b64encode",
-    lambda message, enc: base64.urlsafe_b64encode(message).decode(),
+    lambda message, enc: base64.urlsafe_b64encode(message).decode("ascii"),
+    decoder=lambda message, enc: base64.urlsafe_b64decode(message.encode("ascii")),
     binary_input=True,
 )
 Encoder(

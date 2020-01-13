@@ -1,56 +1,62 @@
 import argparse
-import unicodedata
-from typing import Tuple, Iterable, Optional
+from typing import Iterable, Optional, Tuple
 
 from multicoder.encoders import encoders
 
 __author__ = "flanker"
 
-__all__ = ["main"]
+__all__ = ["main", "decode_text", "encode_text"]
 
 
-def decode_text(message, encoding=None) -> Iterable[Tuple[str, str]]:
+def decode_text(
+        message, encoding: str = "utf-8", normalization: Optional[str] = None
+) -> Iterable[Tuple[str, str]]:
     for encoder in encoders.values():
         if encoder.decoder is None:
             continue
         try:
-            decoded_message = encoder.decode(message)
-            if encoder.binary_output:
-                decoded_message = decoded_message.decode(encoding=encoding or "utf-8")
+            decoded_message = encoder.decode(
+                message, encoding, normalization=normalization
+            )
         except Exception as e:
             decoded_message = "(invalid: %s )" % e
         yield encoder.decode_name, decoded_message
 
 
 def encode_text(
-    message: str, encoding: Optional[str] = None, normalization: Optional[str] = None
+        message: str, encoding: str = "utf-8", normalization: Optional[str] = None
 ) -> Iterable[Tuple[str, str]]:
-    if normalization:
-        message = unicodedata.normalize(normalization, message)
     for encoder in encoders.values():
         try:
-            if encoder.binary_input:
-                message = message.encode(encoding=encoding)
-            encoded_message = encoder.encode(message, encoding=encoding)
+            encoded_message = encoder.encode(
+                message, encoding=encoding, normalization=normalization
+            )
         except Exception as e:
             encoded_message = "(invalid: %s )" % e
         yield encoder.encode_name, encoded_message
 
 
 def main(args=None):
-    parser = argparse.ArgumentParser(description="Display standard encodings")
+    parser = argparse.ArgumentParser(description="Test classical encodings")
     parser.add_argument(
-        "-g", "--guess", help="guess which encoding provides this result", default=None
+        "--result", help="only display encodings that return this text", default=None
     )
     parser.add_argument(
         "-r",
         "--reverse",
-        help="try to decode the provided text",
+        help="decode the provided text instead encoding it",
         default=False,
         action="store_true",
     )
     parser.add_argument(
         "-n",
+        "--new-line",
+        help="also try with an ending new line",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "-N",
         "--normalization",
         default=None,
         choices=("NFC", "NFKC", "NFD", "NFKD"),
@@ -59,31 +65,21 @@ def main(args=None):
     parser.add_argument(
         "-e",
         "--encoding",
-        default=None,
+        default="utf-8",
         help="encoding to use for binary representations",
     )
-    parser.add_argument("text", help="text to encode in different ways")
+    parser.add_argument("text", help="text to encode")
     args = parser.parse_args(args)
 
-    src_text = args.text
-    dst_text = args.guess
-    reverse = args.reverse
-    normalization = args.normalization
-    encoding = args.encoding
-    if reverse:
-        for name, msg in decode_text(src_text, encoding=encoding):
-            print("%s : %s" % (name, msg))
-    elif dst_text:
-        for name, msg in encode_text(
-            src_text, encoding=encoding, normalization=normalization
-        ):
-            if msg == dst_text:
+    src_texts = [args.text]
+    if args.new_line:
+        src_texts.append(args.text + "\n")
+    for src_text in src_texts:
+        dst_text = args.result
+        fn = decode_text if args.reverse else encode_text
+        for name, msg in fn(src_text, encoding=args.encoding, normalization=args.normalization):
+            if dst_text is None or msg == dst_text:
                 print("%s : %s" % (name, msg))
-    else:
-        for name, msg in encode_text(
-            src_text, encoding=encoding, normalization=normalization
-        ):
-            print("%s : %s" % (name, msg))
 
 
 if __name__ == "__main__":

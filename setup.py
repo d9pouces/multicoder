@@ -1,8 +1,8 @@
 import codecs
 import os.path
 import re
-import sys
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 # avoid a from multicoder import __version__ as version (that compiles multicoder.__init__ and is not compatible with bdist_deb)
 version = None
@@ -23,10 +23,10 @@ entry_points = {"console_scripts": ["multicoder = multicoder.cli:main"]}
 setup(
     name="multicoder",
     version=version,
-    description="No description yet.",
+    description="Test classical encodings.",
     long_description=long_description,
     author="flanker",
-    author_email="flanker@19pouces.net",
+    author_email="github@19pouces.net",
     license="CeCILL-B",
     url="",
     entry_points=entry_points,
@@ -36,6 +36,7 @@ setup(
     test_suite="multicoder.tests",
     install_requires=[],
     setup_requires=[],
+    tests_requires=["hypothesis"],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Operating System :: MacOS :: MacOS X",
@@ -44,9 +45,6 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: Unix",
         "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
