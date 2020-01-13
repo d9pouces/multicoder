@@ -1,7 +1,7 @@
 Multicoder
 ==========
 
-Ever asked yourself which encoding returns "Il+n%27y+a+personne+qui+n%27aime+la+souffrance+pour+elle-m%C3%AAme%2C+qui+ne+la+recherche+et+qui+ne+la+veuille+pour+elle-m%C3%AAme%E2%80%A6"?
+Ever asked yourself which encoding returns "Test%20with%20special%20chars%3A%20%24%20%C3%A9%C3%A8%20%26%20.%3B/%3D"?
 Multicoder to the rescue!
 
 Multicoder will encode, or decode, the given text using the standard encodings.
