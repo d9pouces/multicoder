@@ -38,8 +38,8 @@ def encode_text(
 
 def main(args=None):
     parser = argparse.ArgumentParser(description="Test classical encodings")
-    parser.add_argument(
-        "--result", help="only display encodings that return this text", default=None
+    parser.add_argument("-o",
+        "--output", help="only display encodings that return this text", default=None
     )
     parser.add_argument(
         "-r",
@@ -75,7 +75,7 @@ def main(args=None):
     if args.new_line:
         src_texts.append(args.text + "\n")
     for src_text in src_texts:
-        dst_text = args.result
+        dst_text = args.output
         fn = decode_text if args.reverse else encode_text
         for name, msg in fn(src_text, encoding=args.encoding, normalization=args.normalization):
             if dst_text is None or msg == dst_text:
