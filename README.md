@@ -53,4 +53,4 @@ If you known both clear and encoded text, you can display valid encodings:
 hashlib.sha1 : d15f196d4ae9eda069d1ea171a44aaa602d581ab
 ```
 
-Probably not the script of the Century but it can help.
+Probably not the script of the decade but it can help.
