@@ -18,7 +18,7 @@ base64.b64encode : (invalid: Invalid base64-encoded string: number of data chara
 base64.urlsafe_b64encode : (invalid: Invalid base64-encoded string: number of data characters (53) cannot be 1 more than a multiple of 4 )
 ```
 
-You can encode or decode the provided text (of course, some methods can only encode since they are actuall hash methods, not encoding methods…):
+You can encode or decode the provided text (of course, some methods can only encode since they are actually hash methods, not encoding ones…):
 ```bash
 $ multicoder "Test with special chars: \$ éè & .;/="
 email.header.Header : =?utf-8?b?VGVzdCB3aXRoIHNwZWNpYWwgY2hhcnM6ICQgw6nDqCAmIC47Lz0=?=

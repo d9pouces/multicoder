@@ -25,6 +25,7 @@ setup(
     version=version,
     description="Test classical encodings.",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author="flanker",
     author_email="github@19pouces.net",
     license="CeCILL-B",
