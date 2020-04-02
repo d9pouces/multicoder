@@ -8,7 +8,7 @@ import quopri
 import shlex
 import unicodedata
 import urllib.parse
-from typing import Callable, Optional, Iterable, Union
+from typing import Callable, Optional
 
 encoders = {}
 
