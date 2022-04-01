@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "multicoder"
+version = "0.9.0"
+description = "Multicoder will encode, or decode, the given text using the standard encodings."
+authors = ["d9pouces <github@19pouces.net>"]
+license = "CeCILL-B"
+classifiers = [
+        "Development Status :: 3 - Alpha",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: BSD",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: Unix",
+        "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3 :: Only",
+]
+
+[tool.poetry.scripts]
+multicoder = 'multicoder.cli:main'
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+hypothesis = "^6.40.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
